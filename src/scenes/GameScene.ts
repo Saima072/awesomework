@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { TouchControls } from '../ui/TouchControls';
 
 const TILE = 48;
 const WORLD_WIDTH = TILE * 90; // 4320 px
@@ -52,6 +53,7 @@ export class GameScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: Record<'a' | 'd' | 'w', Phaser.Input.Keyboard.Key>;
+  private touch?: TouchControls;
   private coins!: Phaser.Physics.Arcade.Group;
   private enemies!: Phaser.Physics.Arcade.Group;
   private scoreText!: Phaser.GameObjects.Text;
@@ -98,14 +100,18 @@ export class GameScene extends Phaser.Scene {
       d: this.input.keyboard!.addKey('D'),
       w: this.input.keyboard!.addKey('W')
     };
+
+    if (TouchControls.isTouchDevice(this)) {
+      this.touch = new TouchControls(this);
+    }
   }
 
   update(time: number): void {
     if (this.gameOver) return;
 
     const body = this.player.body as Phaser.Physics.Arcade.Body;
-    const left = this.cursors.left.isDown || this.wasd.a.isDown;
-    const right = this.cursors.right.isDown || this.wasd.d.isDown;
+    const left = this.cursors.left.isDown || this.wasd.a.isDown || this.touch?.left === true;
+    const right = this.cursors.right.isDown || this.wasd.d.isDown || this.touch?.right === true;
 
     if (left) {
       this.player.setVelocityX(-260);
@@ -120,7 +126,8 @@ export class GameScene extends Phaser.Scene {
     const jumpPressed =
       Phaser.Input.Keyboard.JustDown(this.cursors.space) ||
       Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
-      Phaser.Input.Keyboard.JustDown(this.wasd.w);
+      Phaser.Input.Keyboard.JustDown(this.wasd.w) ||
+      this.touch?.consumeJump() === true;
 
     if (jumpPressed && (body.blocked.down || this.jumpsLeft > 0)) {
       if (!body.blocked.down) this.jumpsLeft--;
@@ -388,7 +395,7 @@ export class GameScene extends Phaser.Scene {
       .text(
         cam.width / 2,
         cam.height / 2 + 30,
-        `Final score: ${this.score}\nPress SPACE to play again`,
+        `Final score: ${this.score}\n${this.touch ? 'Tap' : 'Press SPACE'} to play again`,
         {
           fontFamily: 'Arial, sans-serif',
           fontSize: '26px',
@@ -401,6 +408,15 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(21);
 
-    this.input.keyboard?.once('keydown-SPACE', () => this.scene.restart());
+    this.time.delayedCall(600, () => {
+      let restarted = false;
+      const restart = () => {
+        if (restarted) return;
+        restarted = true;
+        this.scene.restart();
+      };
+      this.input.keyboard?.once('keydown-SPACE', restart);
+      this.input.once('pointerdown', restart);
+    });
   }
 }

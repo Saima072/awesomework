@@ -18,6 +18,7 @@ export class BootScene extends Phaser.Scene {
     this.makeFlag();
     this.makeSpike();
     this.makeCloud();
+    this.makeTouchButtons();
 
     this.scene.start('title');
   }
@@ -100,6 +101,37 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0x78909c);
     g.fillTriangle(6, 24, 12, 5, 18, 24);
     g.generateTexture('spike', 24, 24);
+    g.destroy();
+  }
+
+  private makeTouchButtons(): void {
+    const drawBase = (g: Phaser.GameObjects.Graphics, accent: number) => {
+      g.fillStyle(0x263238, 0.4);
+      g.fillCircle(44, 44, 42);
+      g.lineStyle(4, accent, 0.8);
+      g.strokeCircle(44, 44, 42);
+    };
+
+    let g = this.add.graphics();
+    drawBase(g, 0xffffff);
+    g.fillStyle(0xffffff, 0.9);
+    g.fillTriangle(58, 22, 58, 66, 24, 44);
+    g.generateTexture('btn-left', 88, 88);
+    g.destroy();
+
+    g = this.add.graphics();
+    drawBase(g, 0xffffff);
+    g.fillStyle(0xffffff, 0.9);
+    g.fillTriangle(30, 22, 30, 66, 64, 44);
+    g.generateTexture('btn-right', 88, 88);
+    g.destroy();
+
+    g = this.add.graphics();
+    drawBase(g, 0xffd54f);
+    g.fillStyle(0xffd54f, 0.9);
+    g.fillTriangle(22, 48, 66, 48, 44, 20);
+    g.fillRect(36, 48, 16, 20);
+    g.generateTexture('btn-jump', 88, 88);
     g.destroy();
   }
 

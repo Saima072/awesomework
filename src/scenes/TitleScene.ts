@@ -23,11 +23,14 @@ export class TitleScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
+    const isTouch = this.sys.game.device.input.touch;
     this.add
       .text(
         width / 2,
         height * 0.55,
-        'Arrows / WASD to move  ·  Space to jump (double jump!)\nGrab every coin, dodge the spikes, reach the flag.',
+        isTouch
+          ? 'On-screen buttons to move  ·  yellow button to jump (double jump!)\nGrab every coin, dodge the spikes, reach the flag.'
+          : 'Arrows / WASD to move  ·  Space to jump (double jump!)\nGrab every coin, dodge the spikes, reach the flag.',
         {
           fontFamily: 'Arial, sans-serif',
           fontSize: '22px',
@@ -39,7 +42,7 @@ export class TitleScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     const prompt = this.add
-      .text(width / 2, height * 0.78, 'Press SPACE or click to start', {
+      .text(width / 2, height * 0.78, isTouch ? 'Tap to start' : 'Press SPACE or click to start', {
         fontFamily: 'Arial, sans-serif',
         fontSize: '26px',
         color: '#ffffff'

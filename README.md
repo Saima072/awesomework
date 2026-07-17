@@ -4,12 +4,14 @@ A 2D platformer web game. Run, double-jump, stomp enemies, grab all 22 coins, do
 
 ## Controls
 
-| Action | Keys |
-| --- | --- |
-| Move | Arrow keys or A / D |
-| Jump / double jump | Space, Up, or W |
-| Stomp enemy | Land on it from above |
-| Restart after win/lose | Space |
+| Action | Keyboard | Touch (phones/tablets) |
+| --- | --- | --- |
+| Move | Arrow keys or A / D | Hold ◀ / ▶ buttons |
+| Jump / double jump | Space, Up, or W | Tap the yellow ▲ button |
+| Stomp enemy | Land on it from above | Land on it from above |
+| Restart after win/lose | Space | Tap anywhere |
+
+On-screen buttons appear automatically on touch devices and support multitouch, so you can hold a direction and jump at the same time.
 
 You have 3 lives. Falling into a pit respawns you at the last ground section; enemies and spikes knock a heart off (with a short invulnerability window). Finishing with spare lives earns a bonus.
 
