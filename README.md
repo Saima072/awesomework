@@ -1,6 +1,8 @@
 # Sky Runner 🏃🟧
 
-A 2D platformer web game. Run, double-jump, stomp enemies, grab all 22 coins, dodge the spikes and pits, and reach the flag.
+A 2D platformer web game. Pick your fluffy square blob (five colors), then run, double-jump, stomp enemies, eat all 22 snacks (apples, donuts, cheese, cherries), dodge the spikes and pits, and reach the flag.
+
+On phones the game is landscape-only: holding the phone in portrait shows a "rotate your phone" screen and pauses the game.
 
 ## Controls
 
