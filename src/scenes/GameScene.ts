@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { TouchControls } from '../ui/TouchControls';
+import { FOOD_KEYS } from './BootScene';
 
 const TILE = 48;
 const WORLD_WIDTH = TILE * 90; // 4320 px
@@ -33,7 +34,7 @@ const PLATFORMS: Array<[number, number, number]> = [
   [80, 6, 3]
 ];
 
-const COINS: Array<[number, number]> = [
+const FOOD_SPOTS: Array<[number, number]> = [
   [5, 2], [8, 2], [11, 5], [16, 7], [19, 2], [22, 6], [27, 8],
   [31, 2], [34, 5], [39, 7], [43, 9], [46, 2], [49, 6], [53, 8],
   [57, 2], [60, 5], [65, 7], [69, 9], [73, 2], [76, 6], [81, 8], [84, 2]
@@ -54,13 +55,13 @@ export class GameScene extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: Record<'a' | 'd' | 'w', Phaser.Input.Keyboard.Key>;
   private touch?: TouchControls;
-  private coins!: Phaser.Physics.Arcade.Group;
+  private food!: Phaser.Physics.Arcade.Group;
   private enemies!: Phaser.Physics.Arcade.Group;
   private scoreText!: Phaser.GameObjects.Text;
   private livesText!: Phaser.GameObjects.Text;
   private score = 0;
   private lives = 3;
-  private totalCoins = 0;
+  private totalFood = 0;
   private jumpsLeft = 2;
   private invulnUntil = 0;
   private gameOver = false;
@@ -80,7 +81,7 @@ export class GameScene extends Phaser.Scene {
     this.buildBackground();
     const solids = this.buildLevel();
     this.buildPlayer();
-    this.buildCoins();
+    this.buildFood();
     this.buildEnemies(solids);
     this.buildSpikes();
     this.buildFlag();
@@ -185,33 +186,42 @@ export class GameScene extends Phaser.Scene {
   }
 
   private buildPlayer(): void {
-    this.player = this.physics.add.sprite(TILE * 2, WORLD_HEIGHT - TILE * 2, 'player');
+    const blobIndex = (this.registry.get('blobIndex') as number) ?? 0;
+    this.player = this.physics.add.sprite(
+      TILE * 2,
+      WORLD_HEIGHT - TILE * 2,
+      `blob-${blobIndex}`
+    );
     this.player.setCollideWorldBounds(true);
-    (this.player.body as Phaser.Physics.Arcade.Body).setSize(26, 38);
+    (this.player.body as Phaser.Physics.Arcade.Body).setSize(28, 32).setOffset(4, 5);
   }
 
-  private buildCoins(): void {
-    this.coins = this.physics.add.group({ allowGravity: false, immovable: true });
-    for (const [tx, fromBottom] of COINS) {
-      const coin = this.coins.create(
+  private buildFood(): void {
+    this.food = this.physics.add.group({ allowGravity: false, immovable: true });
+    for (const [tx, fromBottom] of FOOD_SPOTS) {
+      const item = this.food.create(
         tx * TILE + TILE / 2,
         WORLD_HEIGHT - TILE / 2 - fromBottom * TILE,
-        'coin'
+        FOOD_KEYS[(tx + fromBottom) % FOOD_KEYS.length]
       ) as Phaser.Physics.Arcade.Sprite;
+      // gentle bob so snacks feel alive without spinning like coins
       this.tweens.add({
-        targets: coin,
-        scaleX: 0.15,
-        duration: 450,
+        targets: item,
+        y: item.y - 5,
+        angle: 6,
+        duration: 800,
         yoyo: true,
         repeat: -1,
-        delay: (tx % 5) * 90
+        ease: 'Sine.easeInOut',
+        delay: (tx % 5) * 120
       });
     }
-    this.totalCoins = COINS.length;
+    this.totalFood = FOOD_SPOTS.length;
 
-    this.physics.add.overlap(this.player, this.coins, (_p, c) => {
-      const coin = c as Phaser.Physics.Arcade.Sprite;
-      coin.disableBody(true, true);
+    this.physics.add.overlap(this.player, this.food, (_p, f) => {
+      const item = f as Phaser.Physics.Arcade.Sprite;
+      this.tweens.killTweensOf(item);
+      item.disableBody(true, true);
       this.score += 10;
       this.scoreText.setText(this.scoreLabel());
     });
@@ -318,12 +328,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   private scoreLabel(): string {
-    return `Score ${this.score}  ·  Coins ${this.coinsCollected()}/${this.totalCoins}`;
+    return `Score ${this.score}  ·  Snacks ${this.foodEaten()}/${this.totalFood}`;
   }
 
-  private coinsCollected(): number {
-    if (!this.coins) return 0;
-    return this.totalCoins - this.coins.countActive(true);
+  private foodEaten(): number {
+    if (!this.food) return 0;
+    return this.totalFood - this.food.countActive(true);
   }
 
   private livesLabel(): string {

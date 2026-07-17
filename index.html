@@ -28,10 +28,51 @@
         max-height: 100%;
         touch-action: none;
       }
+      #rotate-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        background: #1a237e;
+        color: #e8eaf6;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 24px;
+      }
+      #rotate-overlay.visible {
+        display: flex;
+      }
+      #rotate-overlay .phone {
+        font-size: 72px;
+        animation: tilt 1.6s ease-in-out infinite;
+      }
+      #rotate-overlay p {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.4;
+      }
+      @keyframes tilt {
+        0%,
+        20% {
+          transform: rotate(0deg);
+        }
+        60%,
+        100% {
+          transform: rotate(90deg);
+        }
+      }
     </style>
   </head>
   <body>
     <div id="game"></div>
+    <div id="rotate-overlay">
+      <div class="phone">📱</div>
+      <p><strong>Rotate your phone</strong><br />Sky Runner is a landscape game.</p>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
