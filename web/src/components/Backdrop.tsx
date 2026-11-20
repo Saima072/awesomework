@@ -33,10 +33,12 @@ export function useBackdrop() {
   const current: BackdropImage[] = Array.from({ length: count }, (_, i) => images[(start + i) % images.length]);
   const next = images.length > PER_VIEW ? () => setStart((s) => (s + PER_VIEW) % images.length) : null;
   const error = state.status === "error" ? state.message : null;
-  return { current, next, error };
+  // `all` is the full, unshuffled list, for the photo gallery.
+  return { current, next, error, all: state };
 }
 
-type Props = ReturnType<typeof useBackdrop>;
+export type BackdropState = ReturnType<typeof useBackdrop>;
+type Props = BackdropState;
 
 export function Backdrop({ current }: Props) {
   const [loaded, setLoaded] = useState<Set<string>>(() => new Set());

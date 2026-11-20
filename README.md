@@ -42,6 +42,13 @@ Other scripts: `npm test` (API tests), `npm run typecheck`, `npm run build` (typ
 
 If an outside source can't be reached, its endpoint answers `502` with a readable `error` message and the page shows that message in place of the content.
 
+## Pages
+
+- **Today** (`/`): tasks, weather, news, a fun fact, and three background photos.
+- **Photos** (`/photos`): a gallery of every photo, each with its credit. Select one to see it larger; use the arrow keys or Previous/Next to move through them.
+
+Both pages share one React app; `vercel.json` serves `index.html` for `/photos`.
+
 ## Background photos
 
 The page shows three photos at a time, side by side (stacked on phones), from the Wikimedia Commons category in `BACKGROUND_CATEGORY` (default `Joe Jonas`), with the photographers and licenses under the page, as those licenses require. "Next photos" shows the next three. Animated GIFs are skipped for people who turn on reduced motion.
