@@ -10,7 +10,7 @@ A personal start page: your upcoming tasks, the weather outside, a story from to
 | Backend (`server/`) | Node, Fastify 5, TypeScript (run with `tsx`) |
 | Shared types (`shared/`) | API response shapes, used by both sides |
 | Data sources | [Open-Meteo](https://open-meteo.com) (weather), Wikipedia "In the news" feed, [uselessfacts](https://uselessfacts.jsph.pl): all free, no API keys |
-| Tasks storage | In memory for now (resets on restart); see *Database* below |
+| Tasks storage | Supabase Postgres (`public.tasks`), or in memory when Supabase isn't configured |
 
 ## Run it
 
@@ -18,7 +18,7 @@ Needs Node 20.6 or newer.
 
 ```bash
 npm install
-cp .env.example .env   # optional: set DEFAULT_CITY and PORT
+cp .env.example .env   # then fill in SUPABASE_URL and SUPABASE_SECRET_KEY
 npm run dev            # API on :3001, web app on :5173
 ```
 
@@ -40,6 +40,12 @@ Other scripts: `npm test` (API tests), `npm run typecheck`, `npm run build` (typ
 
 If an outside source can't be reached, its endpoint answers `502` with a readable `error` message and the page shows that message in place of the content.
 
-## Database
+## Database (Supabase)
 
-Tasks live behind the `TaskRepository` interface in `server/src/lib/taskRepository.ts`. Adding a database means writing one class that implements it. Weather, news and facts don't need storage.
+Tasks are stored in the `public.tasks` table of a Supabase Postgres database. The schema is in `supabase/migrations/`.
+
+- Only the API server talks to Supabase, using a **secret key** (`SUPABASE_SECRET_KEY`, starts with `sb_secret_`). The browser never sees it.
+- Row-level security is on with no policies, so the public (publishable) key can't read or change tasks. Supabase's advisor will list this as "RLS enabled, no policy"; that's intended.
+- Without `SUPABASE_URL` and `SUPABASE_SECRET_KEY`, the server falls back to an in-memory list with sample tasks.
+
+Storage goes through the `TaskRepository` interface (`server/src/lib/taskRepository.ts`), so another database only needs one new class.
