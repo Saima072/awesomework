@@ -1,53 +1,51 @@
-# Sky Runner 🏃🟧
+# awesomework
 
-A 2D platformer web game. Pick your fluffy square blob (five colors), then run, double-jump, stomp enemies, eat all 22 snacks (apples, donuts, cheese, cherries), dodge the spikes and pits, and reach the flag.
-
-On phones the game is landscape-only: holding the phone in portrait shows a "rotate your phone" screen and pauses the game.
-
-## Controls
-
-| Action | Keyboard | Touch (phones/tablets) |
-| --- | --- | --- |
-| Move | Arrow keys or A / D | Hold ◀ / ▶ buttons |
-| Jump / double jump | Space, Up, or W | Tap the yellow ▲ button |
-| Stomp enemy | Land on it from above | Land on it from above |
-| Restart after win/lose | Space | Tap anywhere |
-
-On-screen buttons appear automatically on touch devices and support multitouch, so you can hold a direction and jump at the same time.
-
-You have 3 lives. Falling into a pit respawns you at the last ground section; enemies and spikes knock a heart off (with a short invulnerability window). Finishing with spare lives earns a bonus.
+A personal start page: your upcoming tasks, the weather outside, a story from today's news and a fun fact. The page background takes on the color of the actual sky (rain, clear, snow, night…).
 
 ## Stack
 
-- **[Phaser 4](https://phaser.io/)** — 2D game framework (arcade physics, scenes, input, camera)
-- **TypeScript** (strict) + **Vite 6** — dev server and static production build
-- Zero binary assets: every texture is generated at runtime with Phaser Graphics
+| Part | Tech |
+| --- | --- |
+| Frontend (`web/`) | React 19, TypeScript, Vite 6, plain CSS |
+| Backend (`server/`) | Node, Fastify 5, TypeScript (run with `tsx`) |
+| Shared types (`shared/`) | API response shapes, used by both sides |
+| Data sources | [Open-Meteo](https://open-meteo.com) (weather), Wikipedia "In the news" feed, [uselessfacts](https://uselessfacts.jsph.pl): all free, no API keys |
+| Tasks storage | Supabase Postgres (`public.tasks`), or in memory when Supabase isn't configured |
 
-## Develop
+## Run it
+
+Needs Node 20.6 or newer.
 
 ```bash
 npm install
-npm run dev      # dev server with HMR
-npm run build    # typecheck + production build into dist/
-npm run preview  # serve the production build locally
+cp .env.example .env   # then fill in SUPABASE_URL and SUPABASE_SECRET_KEY
+npm run dev            # API on :3001, web app on :5173
 ```
 
-## Deploy to Vercel
+Open http://localhost:5173. Click the city name in the headline to change it; your choice is remembered in the browser.
 
-The build output is fully static — no server, no config needed.
+Other scripts: `npm test` (API tests), `npm run typecheck`, `npm run build` (type checks the API, builds the web app into `web/dist`).
 
-1. Push this repo to GitHub.
-2. In Vercel, **Add New Project** → import the repo.
-3. Vercel auto-detects Vite (build command `npm run build`, output `dist/`). Click **Deploy**.
+## API
 
-Or from the CLI: `npm i -g vercel && vercel`.
+| Method | Path | What it does |
+| --- | --- | --- |
+| GET | `/api/tasks` | List tasks |
+| POST | `/api/tasks` | Add a task `{ title, due? }` (`due` is `YYYY-MM-DD` or null) |
+| PATCH | `/api/tasks/:id` | Change `title`, `due` or `done` |
+| DELETE | `/api/tasks/:id` | Delete a task |
+| GET | `/api/weather?city=Berlin` | Current weather, today's high/low, next 8 hours (cached 10 min) |
+| GET | `/api/news` | A random story from today's Wikipedia "In the news" (cached 30 min) |
+| GET | `/api/fact` | A random fun fact |
 
-## Project layout
+If an outside source can't be reached, its endpoint answers `502` with a readable `error` message and the page shows that message in place of the content.
 
-```
-index.html              entry page
-src/main.ts             Phaser game config
-src/scenes/BootScene.ts runtime texture generation
-src/scenes/TitleScene.ts title screen
-src/scenes/GameScene.ts level data, physics, enemies, HUD, win/lose
-```
+## Database (Supabase)
+
+Tasks are stored in the `public.tasks` table of a Supabase Postgres database. The schema is in `supabase/migrations/`.
+
+- Only the API server talks to Supabase, using a **secret key** (`SUPABASE_SECRET_KEY`, starts with `sb_secret_`). The browser never sees it.
+- Row-level security is on with no policies, so the public (publishable) key can't read or change tasks. Supabase's advisor will list this as "RLS enabled, no policy"; that's intended.
+- Without `SUPABASE_URL` and `SUPABASE_SECRET_KEY`, the server falls back to an in-memory list with sample tasks.
+
+Storage goes through the `TaskRepository` interface (`server/src/lib/taskRepository.ts`), so another database only needs one new class.
