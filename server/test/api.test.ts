@@ -128,6 +128,13 @@ describe("backgrounds", async () => {
     ]);
   });
 
+  it("skips signatures and small images", () => {
+    const sig = { ...page("image/png", 4), title: "File:Joe Jonas signature.png" };
+    const small = page("image/jpeg", 5);
+    (small.imageinfo[0] as { width?: number }).width = 300;
+    expect(parseCommons({ query: { pages: { a: sig, b: small } } })).toEqual([]);
+  });
+
   it("reads extra https URLs", () => {
     expect(parseExtraUrls(" https://x.com/a.gif , http://no.png,https://y.com/b.jpg").map((b) => [b.url, b.animated])).toEqual([
       ["https://x.com/a.gif", true],

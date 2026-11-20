@@ -18,6 +18,8 @@ interface CommonsResponse {
           url: string;
           descriptionurl: string;
           mime: string;
+          width?: number;
+          height?: number;
           extmetadata?: Record<string, { value: string } | undefined>;
         }[];
       }
@@ -26,12 +28,16 @@ interface CommonsResponse {
 }
 
 const OK_MIME = new Set(["image/jpeg", "image/png", "image/gif", "image/webp"]);
+/** Files that are in the category tree but aren't photos of the person. */
+const NOT_A_PHOTO = /signature|logo|autograph|\.svg$/i;
+const MIN_WIDTH = 800;
 
 export function parseCommons(data: CommonsResponse): Backdrop[] {
   return Object.values(data.query?.pages ?? {})
     .flatMap((p) => {
       const info = p.imageinfo?.[0];
-      if (!info || !OK_MIME.has(info.mime)) return [];
+      if (!info || !OK_MIME.has(info.mime) || NOT_A_PHOTO.test(p.title)) return [];
+      if (info.width !== undefined && info.width < MIN_WIDTH) return [];
       const meta = info.extmetadata ?? {};
       const animated = info.mime === "image/gif";
       return [
@@ -67,20 +73,33 @@ export const backgroundRoutes: FastifyPluginAsync<{ fetch: typeof fetch; categor
   app.get("/", async (_req, reply) => {
     let commons = cache.get(category);
     if (!commons) {
-      const params = new URLSearchParams({
+      const imageinfo = {
         action: "query",
         format: "json",
+        prop: "imageinfo",
+        iiprop: "url|mime|size|extmetadata",
+        iiurlwidth: "1920",
+        iiextmetadatafilter: "Artist|LicenseShortName",
+      };
+      // Photos usually live in sub-categories ("Joe Jonas in 2019", …), so search the whole
+      // category tree first; fall back to the category's own files if search finds nothing.
+      const deep = new URLSearchParams({
+        ...imageinfo,
+        generator: "search",
+        gsrsearch: `deepcat:"${category}" filetype:bitmap`,
+        gsrnamespace: "6",
+        gsrlimit: "50",
+      });
+      const flat = new URLSearchParams({
+        ...imageinfo,
         generator: "categorymembers",
         gcmtitle: `Category:${category}`,
         gcmtype: "file",
         gcmlimit: "50",
-        prop: "imageinfo",
-        iiprop: "url|mime|extmetadata",
-        iiurlwidth: "1920",
-        iiextmetadatafilter: "Artist|LicenseShortName",
       });
       try {
-        commons = parseCommons(await getJson<CommonsResponse>(fetcher, `${COMMONS}?${params}`));
+        commons = parseCommons(await getJson<CommonsResponse>(fetcher, `${COMMONS}?${deep}`));
+        if (commons.length === 0) commons = parseCommons(await getJson<CommonsResponse>(fetcher, `${COMMONS}?${flat}`));
         cache.set(category, commons);
       } catch (err) {
         if (!(err instanceof UpstreamError)) throw err;
