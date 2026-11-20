@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SupabaseTaskRepository } from "../src/lib/supabaseTaskRepository.ts";
+import { SupabaseTaskRepository } from "../src/lib/supabaseTaskRepository.js";
 
 const ID = "6f1c2b9e-3a4d-4e5f-8a9b-0c1d2e3f4a5b";
 const row = { id: ID, title: "Water plants", due: "2026-11-21", done: false, created_at: "2026-11-20T10:00:00Z" };

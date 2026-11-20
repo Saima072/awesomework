@@ -1,10 +1,10 @@
 import Fastify, { type FastifyServerOptions } from "fastify";
-import { InMemoryTaskRepository, type TaskRepository } from "./lib/taskRepository.ts";
-import { SupabaseTaskRepository } from "./lib/supabaseTaskRepository.ts";
-import { taskRoutes } from "./routes/tasks.ts";
-import { weatherRoutes } from "./routes/weather.ts";
-import { newsRoutes } from "./routes/news.ts";
-import { factRoutes } from "./routes/fact.ts";
+import { InMemoryTaskRepository, type TaskRepository } from "./lib/taskRepository.js";
+import { SupabaseTaskRepository } from "./lib/supabaseTaskRepository.js";
+import { taskRoutes } from "./routes/tasks.js";
+import { weatherRoutes } from "./routes/weather.js";
+import { newsRoutes } from "./routes/news.js";
+import { factRoutes } from "./routes/fact.js";
 
 export interface AppDeps {
   tasks?: TaskRepository;

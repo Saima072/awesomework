@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
-import type { NewTask, TaskPatch } from "../../../shared/types.ts";
-import type { TaskRepository } from "../lib/taskRepository.ts";
+import type { NewTask, TaskPatch } from "../../../shared/types.js";
+import type { TaskRepository } from "../lib/taskRepository.js";
 
 const dateOrNull = { anyOf: [{ type: "string", format: "date" }, { type: "null" }] };
 const title = { type: "string", minLength: 1, maxLength: 200, pattern: "\\S" };

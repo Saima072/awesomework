@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildApp } from "../src/app.ts";
-import { InMemoryTaskRepository } from "../src/lib/taskRepository.ts";
-import { describeCode, } from "../src/routes/weather.ts";
-import { stripHtml } from "../src/routes/news.ts";
+import { buildApp } from "../src/app.js";
+import { InMemoryTaskRepository } from "../src/lib/taskRepository.js";
+import { describeCode, } from "../src/routes/weather.js";
+import { stripHtml } from "../src/routes/news.js";
 
 /** Fake fetch that answers by URL substring. */
 function fakeFetch(routes: Record<string, unknown>): typeof fetch {
@@ -96,5 +96,15 @@ describe("news and facts", () => {
 
   it("strips html", () => {
     expect(stripHtml("<a href='x'>Hi</a>&nbsp;there")).toBe("Hi there");
+  });
+});
+
+describe("vercel adapter", async () => {
+  const { restoreUrl } = await import("../src/vercel.js");
+  it("restores the original API path", () => {
+    expect(restoreUrl("/api?__path=tasks")).toBe("/api/tasks");
+    expect(restoreUrl("/api?__path=tasks/abc")).toBe("/api/tasks/abc");
+    expect(restoreUrl("/api?city=Oslo&__path=weather")).toBe("/api/weather?city=Oslo");
+    expect(restoreUrl("/api/tasks")).toBe("/api/tasks");
   });
 });

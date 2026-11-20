@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
-import type { Fact } from "../../../shared/types.ts";
-import { UpstreamError, getJson } from "../lib/cache.ts";
+import type { Fact } from "../../../shared/types.js";
+import { UpstreamError, getJson } from "../lib/cache.js";
 
 // Free, no key. https://uselessfacts.jsph.pl
 const FACTS = "https://uselessfacts.jsph.pl/api/v2/facts/random?language=en";

@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
-import type { Sky, Weather } from "../../../shared/types.ts";
-import { TtlCache, UpstreamError, getJson } from "../lib/cache.ts";
+import type { Sky, Weather } from "../../../shared/types.js";
+import { TtlCache, UpstreamError, getJson } from "../lib/cache.js";
 
 // Open-Meteo: free, no API key. https://open-meteo.com/en/docs
 const GEO = "https://geocoding-api.open-meteo.com/v1/search";

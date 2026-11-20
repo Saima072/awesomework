@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import type { NewTask, Task, TaskPatch } from "../../../shared/types.ts";
-import type { TaskRepository } from "./taskRepository.ts";
+import type { NewTask, Task, TaskPatch } from "../../../shared/types.js";
+import type { TaskRepository } from "./taskRepository.js";
 
 interface Row {
   id: string;

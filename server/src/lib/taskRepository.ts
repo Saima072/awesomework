@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { NewTask, Task, TaskPatch } from "../../../shared/types.ts";
+import type { NewTask, Task, TaskPatch } from "../../../shared/types.js";
 
 /**
  * Storage boundary for tasks. The app only talks to this interface, so swapping the

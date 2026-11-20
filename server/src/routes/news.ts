@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
-import type { NewsItem } from "../../../shared/types.ts";
-import { TtlCache, UpstreamError, getJson } from "../lib/cache.ts";
+import type { NewsItem } from "../../../shared/types.js";
+import { TtlCache, UpstreamError, getJson } from "../lib/cache.js";
 
 // Wikipedia's daily featured feed includes the "In the news" section. Free, no key.
 // https://api.wikimedia.org/wiki/Feed_API/Reference/Featured_content
