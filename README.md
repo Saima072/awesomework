@@ -44,7 +44,7 @@ If an outside source can't be reached, its endpoint answers `502` with a readabl
 
 ## Background photos
 
-The page picks a random photo from the Wikimedia Commons category in `BACKGROUND_CATEGORY` (default `Joe Jonas`) and shows the photographer and license under the page, as those licenses require. "Next photo" moves to another one. Animated GIFs are skipped for people who turn on reduced motion.
+The page shows three photos at a time, side by side (stacked on phones), from the Wikimedia Commons category in `BACKGROUND_CATEGORY` (default `Joe Jonas`), with the photographers and licenses under the page, as those licenses require. "Next photos" shows the next three. Animated GIFs are skipped for people who turn on reduced motion.
 
 To add your own images or GIFs, set `BACKGROUND_URLS` to a comma-separated list of `https://` links. Only use images you have the right to use.
 
