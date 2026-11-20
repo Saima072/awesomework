@@ -108,3 +108,37 @@ describe("vercel adapter", async () => {
     expect(restoreUrl("/api/tasks")).toBe("/api/tasks");
   });
 });
+
+describe("backgrounds", async () => {
+  const { parseCommons, parseExtraUrls } = await import("../src/routes/backgrounds.js");
+  const page = (mime: string, n: number) => ({
+    title: `File:${n}`,
+    imageinfo: [{
+      url: `https://upload.wikimedia.org/${n}.orig`, thumburl: `https://upload.wikimedia.org/${n}.thumb`,
+      descriptionurl: `https://commons.wikimedia.org/wiki/File:${n}`, mime,
+      extmetadata: { Artist: { value: "<a href='x'>Jane Doe</a>" }, LicenseShortName: { value: "CC BY-SA 4.0" } },
+    }],
+  });
+
+  it("keeps images with credit and license, skips other files", () => {
+    const out = parseCommons({ query: { pages: { a: page("image/jpeg", 1), b: page("video/webm", 2), c: page("image/gif", 3) } } });
+    expect(out).toEqual([
+      { url: "https://upload.wikimedia.org/1.thumb", pageUrl: "https://commons.wikimedia.org/wiki/File:1", credit: "Jane Doe", license: "CC BY-SA 4.0", animated: false },
+      { url: "https://upload.wikimedia.org/3.orig", pageUrl: "https://commons.wikimedia.org/wiki/File:3", credit: "Jane Doe", license: "CC BY-SA 4.0", animated: true },
+    ]);
+  });
+
+  it("reads extra https URLs", () => {
+    expect(parseExtraUrls(" https://x.com/a.gif , http://no.png,https://y.com/b.jpg").map((b) => [b.url, b.animated])).toEqual([
+      ["https://x.com/a.gif", true],
+      ["https://y.com/b.jpg", false],
+    ]);
+  });
+
+  it("serves the list, or explains when Commons is unreachable", async () => {
+    const ok = buildApp({}, { tasks: new InMemoryTaskRepository(), fetch: fakeFetch({ "commons.wikimedia.org": { query: { pages: { a: page("image/jpeg", 1) } } } }) });
+    expect((await ok.inject("/api/backgrounds")).json()).toHaveLength(1);
+    const down = buildApp({}, { tasks: new InMemoryTaskRepository(), fetch: fakeFetch({}) });
+    expect((await down.inject("/api/backgrounds")).statusCode).toBe(502);
+  });
+});

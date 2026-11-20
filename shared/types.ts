@@ -49,3 +49,12 @@ export interface Fact {
 export interface ApiError {
   error: string;
 }
+
+export interface Backdrop {
+  url: string;
+  /** Link to the image's page (license and full details), when known */
+  pageUrl: string | null;
+  credit: string;
+  license: string | null;
+  animated: boolean;
+}

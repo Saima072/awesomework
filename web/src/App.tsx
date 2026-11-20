@@ -6,6 +6,7 @@ import { Tasks } from "./components/Tasks.tsx";
 import { Hours } from "./components/Hours.tsx";
 import { News } from "./components/News.tsx";
 import { FunFact } from "./components/FunFact.tsx";
+import { Backdrop, useBackdrop } from "./components/Backdrop.tsx";
 
 function readCity(): string {
   try {
@@ -19,6 +20,7 @@ export function App() {
   const [city, setCity] = useState(readCity);
   const [weather] = useLoad(() => api.weather(city), [city]);
   const [tasks, reloadTasks, mutateTasks] = useLoad(api.tasks);
+  const backdrop = useBackdrop();
 
   useEffect(() => {
     try {
@@ -32,7 +34,8 @@ export function App() {
   const time = weather.status === "ready" && !weather.data.isDay ? "night" : "day";
 
   return (
-    <div className="page" data-sky={sky} data-time={time}>
+    <div className="page" data-sky={sky} data-time={time} data-photo={backdrop.current ? "" : undefined}>
+      <Backdrop {...backdrop} />
       <main className="layout">
         <Hero weather={weather} tasks={tasks} onCityChange={setCity} />
         <Tasks state={tasks} reload={reloadTasks} mutate={mutateTasks} />
@@ -42,6 +45,7 @@ export function App() {
           <FunFact />
         </aside>
       </main>
+      <Backdrop.Credit {...backdrop} />
     </div>
   );
 }

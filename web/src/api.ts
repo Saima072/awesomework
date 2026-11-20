@@ -1,4 +1,4 @@
-import type { Fact, NewTask, NewsItem, Task, TaskPatch, Weather } from "../../shared/types.ts";
+import type { Backdrop, Fact, NewTask, NewsItem, Task, TaskPatch, Weather } from "../../shared/types.ts";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`/api${path}`, {
@@ -19,4 +19,5 @@ export const api = {
   weather: (city: string) => request<Weather>(`/weather?city=${encodeURIComponent(city)}`),
   news: () => request<NewsItem>("/news"),
   fact: () => request<Fact>("/fact"),
+  backgrounds: () => request<Backdrop[]>("/backgrounds"),
 };

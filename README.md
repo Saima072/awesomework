@@ -10,6 +10,7 @@ A personal start page: your upcoming tasks, the weather outside, a story from to
 | Backend (`server/`) | Node, Fastify 5, TypeScript (run with `tsx`) |
 | Shared types (`shared/`) | API response shapes, used by both sides |
 | Data sources | [Open-Meteo](https://open-meteo.com) (weather), Wikipedia "In the news" feed, [uselessfacts](https://uselessfacts.jsph.pl): all free, no API keys |
+| Background photos | Freely licensed images from a [Wikimedia Commons](https://commons.wikimedia.org) category (default: Joe Jonas), credited on the page |
 | Tasks storage | Supabase Postgres (`public.tasks`), or in memory when Supabase isn't configured |
 
 ## Run it
@@ -37,8 +38,15 @@ Other scripts: `npm test` (API tests), `npm run typecheck`, `npm run build` (typ
 | GET | `/api/weather?city=Berlin` | Current weather, today's high/low, next 8 hours (cached 10 min) |
 | GET | `/api/news` | A random story from today's Wikipedia "In the news" (cached 30 min) |
 | GET | `/api/fact` | A random fun fact |
+| GET | `/api/backgrounds` | Background photos with credit and license (cached 6 h) |
 
 If an outside source can't be reached, its endpoint answers `502` with a readable `error` message and the page shows that message in place of the content.
+
+## Background photos
+
+The page picks a random photo from the Wikimedia Commons category in `BACKGROUND_CATEGORY` (default `Joe Jonas`) and shows the photographer and license under the page, as those licenses require. "Next photo" moves to another one. Animated GIFs are skipped for people who turn on reduced motion.
+
+To add your own images or GIFs, set `BACKGROUND_URLS` to a comma-separated list of `https://` links. Only use images you have the right to use.
 
 ## Database (Supabase)
 

@@ -5,6 +5,7 @@ import { taskRoutes } from "./routes/tasks.js";
 import { weatherRoutes } from "./routes/weather.js";
 import { newsRoutes } from "./routes/news.js";
 import { factRoutes } from "./routes/fact.js";
+import { backgroundRoutes } from "./routes/backgrounds.js";
 
 export interface AppDeps {
   tasks?: TaskRepository;
@@ -24,6 +25,12 @@ export function buildApp(opts: FastifyServerOptions = {}, deps: AppDeps = {}) {
   app.register(weatherRoutes, { prefix: "/api/weather", fetch: fetcher, defaultCity });
   app.register(newsRoutes, { prefix: "/api/news", fetch: fetcher });
   app.register(factRoutes, { prefix: "/api/fact", fetch: fetcher });
+  app.register(backgroundRoutes, {
+    prefix: "/api/backgrounds",
+    fetch: fetcher,
+    category: process.env.BACKGROUND_CATEGORY ?? "Joe Jonas",
+    extraUrls: process.env.BACKGROUND_URLS,
+  });
 
   return app;
 }
